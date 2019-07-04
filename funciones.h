@@ -30,6 +30,11 @@ void USART_Send (char out);
 char USART_Receive();
 
 char Lectura(char registro);
+void Escritura (char registro, char valor);
+void Rafaga (char *data);
+
+int Concatenar (char MSB, char LSB);
+
 
 
 

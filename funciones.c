@@ -71,7 +71,7 @@ void I2C_Send(unsigned char data)
     //{
     while( SSPSTATbits.BF || SSPSTATbits.R_nW );   // wait until write cycle is complete   
     I2C_Wait();
-    //while( SSPCON2bits.ACKSTAT ); // test for ACK condition received
+    while( SSPCON2bits.ACKSTAT ); // test for ACK condition received
     //    return ( -2 );			// return NACK
     //else return ( 0 );              //return ACK
     //}
@@ -142,4 +142,46 @@ char Lectura(char registro)
     I2C_Nack();
     I2C_Stop();
     return data;
+}
+
+void Escritura (char registro, char valor)
+{
+    I2C_Start();
+    I2C_Send(MPU_WRITE); //Address+Write bit
+    I2C_Send(registro); //Register
+    I2C_Send(valor);
+    I2C_Stop();
+}
+
+int Concatenar (char MSB, char LSB)
+{
+    int aceleracion;
+    
+//Optimized concatenation in Little-Endian system:
+ ((unsigned char*) &aceleracion)[0] = LSB; //Start from the "little end"
+ ((unsigned char*) &aceleracion)[1] = MSB;    
+
+ return aceleracion;
+}
+
+void Rafaga (char *data) //Data[6]
+{
+
+    char i;
+    I2C_Start();
+    I2C_Send(MPU_WRITE); //Address+Write bit
+    I2C_Send(0x3B); //First regirster: ACCELX_MSB
+    I2C_Restart();
+    I2C_Send(MPU_READ); //Address+Read bit
+    
+    for (i=0; i<5; i++) //5 first datas
+    {
+        data[i] = I2C_Read();
+        I2C_Ack();
+                
+    } //i=5   
+    data[i] = I2C_Read();  //Read lasst data followed by NACK
+    I2C_Nack();
+    I2C_Stop();
+    
 }
