@@ -9,20 +9,24 @@
 #include"conf.h"
 #include"funciones.h"
 
-#define MPU_READ 0b11010001
-#define MPU_WRITE 0b11010000
 #define MPU_WHOAMI 0x75
-char debug;
 
 void main(void) {
     
     //Clock configuration
-    OSCCON = 0b00000000;
+    //OSCCON = 0b00000000;
     char data = 0;
     unsigned int i;
-       
+    USART_Init();
     I2C_Init();
-    for(i=0; i<1000; i++);
+//    TRISB0 = 0;
+//RB0 = 1;
+//RB0 = 0;
+for(i=0; i<200; i++)
+//    ;
+//RB0 = 1;
+//TRISB0 = 1;
+    //for(i=0; i<1000; i++);
     
 //    I2C_Start();
 //    I2C_Send(READMPUADDR);
@@ -30,16 +34,13 @@ void main(void) {
     
         while(1)
     {
-        I2C_Start();
-        I2C_Send(MPU_WRITE); //Addrex+Write bit
-        I2C_Send(0x3B); //Register
-        I2C_Restart();
-        I2C_Send(MPU_READ); //Addrex+Read bit
-        data = I2C_Read();  //Read
-        I2C_Nack();
-        I2C_Stop();
-        debug=data;
-            for(i=0; i<100; i++);
+
+        data = Lectura(MPU_WHOAMI);
+        
+        USART_Send(data);
+        
+            for(i=0; i<1000; i++)
+                ;
             
 }
 

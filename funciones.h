@@ -21,9 +21,17 @@ void I2C_Start(void);
 void I2C_Restart( void );
 void I2C_Stop(void);
 unsigned char I2C_Read(void);
-unsigned char I2C_Send(unsigned char data);
+void I2C_Send(unsigned char data);
 void I2C_Ack();
 void I2C_Nack(void);
+
+void USART_Init(void);
+void USART_Send (char out);
+char USART_Receive();
+
+char Lectura(char registro);
+
+
 
 #endif	/* FUNCIONES_H */
 
