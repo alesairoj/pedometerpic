@@ -7,6 +7,7 @@
 
 
 #include <xc.h>
+#include "funciones.h"
 #define MPU_READ 0b11010001
 #define MPU_WRITE 0b11010000
 
@@ -174,7 +175,7 @@ void Rafaga (char *data) //Data[6]
     I2C_Restart();
     I2C_Send(MPU_READ); //Address+Read bit
     
-    for (i=0; i<5; i++) //5 first datas
+    for (i=5; i>0; i--) //Read backwards ([Z,X,Y]) to respect endianess
     {
         data[i] = I2C_Read();
         I2C_Ack();

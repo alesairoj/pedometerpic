@@ -7,6 +7,7 @@
 
 #include <xc.h>
 #include <stdio.h>
+#include <math.h>
 #include"conf.h"
 #include"funciones.h"
 
@@ -24,9 +25,12 @@ void main(void) {
     //OSCCON = 0b00000000;
     char data[6];
     char registro;
-    unsigned int i;
+    
     char j;
-    int X,Y,Z;
+    
+    int acel[3],acelold[3],acelfilt[3],acelreal[3];
+    int acelold2[3], acelold3[3];
+    signed long acelg;
     USART_Init();
     
     //USART_Send('h');
@@ -39,38 +43,47 @@ void main(void) {
     //    ;
     //RB0 = 1;
     //TRISB0 = 1;
-    for(i=0; i<200; i++);
+    for(j=0; j<200; j++);
     
-    //    I2C_Start();
-    //    I2C_Send(READMPUADDR);
-    //    data = I2C_Read();
-    //    Escritura(0x6B,0x00);
-    //Escritura (MPU_PWR1, 0x00);
+    //Inicio
+    Escritura (MPU_PWR1, 0x00);
+    Rafaga(acel);
+
+    for (j=0; j<3; j++) //Filter initialitation for faster convergence
+    {
+        acelold[j]=acel[j];
+        acelold2[j]=acelold[j];
+        acelold3[j]=acelold[j];
+    }
+    
+    
     
     while(1)
     {
-        //registro=USART_Receive();
-        //data = Lectura(registro);
-        Escritura (MPU_PWR1, 0x00);
-        Rafaga(data);
-        X=Concatenar(data[0],data[1]);
-        Y=Concatenar(data[2],data[3]);
-        Z=Concatenar(data[4],data[5]);
+        
 
-        //USART_Send('S');
-//        for (j=0; j<6; j++)
-//        {
-//            USART_Send(data[j]);
-//            
-//        }
-//        USART_Send('\n');
+        acelg=0;
+        for (j=0; j<3;j++)
+        {
+        //Filtering: 3rd Order FIR without discarding samples works fine
+        //Cascade implementation for avoiding custom coeficients therefore avoiding division operations
+            acelfilt[j]=acelold[j] + ((acel[j] - acelold[j]) >> 4);
+            acelold[j]=acelfilt[j];
+            acelfilt[j]=acelold2[j] + ((acelfilt[j] - acelold2[j]) >> 4);
+            acelold2[j]=acelfilt[j];
+            acelfilt[j]=acelold3[j] + ((acelfilt[j] - acelold3[j]) >> 3);
+            acelold3[j]=acelfilt[j];
+            
+        acelreal[j]=acelreal[j]+ ((acelold[j]-acelfilt[j]-acelreal[j])>>4);
+        acelg=acelg + ((signed long)acelreal[j]*(signed long)acelfilt[j]);
+        } 
         
-        
-        printf("X:%d,Y:%d,Z:%d\n", X, Y, Z);
-        
-        
-        for(i=0; i<65500; i++){
-        }
+        //SAMPLING
+        Escritura (MPU_PWR1, 0x00);
+        Rafaga(acel);
+
+                 printf("%d,%d,%d,%ld\n",acelreal[0], acelreal[1], acelreal[2], acelg);
+//        printf("%d\n",);
 
     }
     
