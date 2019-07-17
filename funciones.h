@@ -35,6 +35,8 @@ void Rafaga (char *data);
 
 int Concatenar (char MSB, char LSB);
 
+void Timer_Init(void);
+
 
 
 

@@ -186,3 +186,22 @@ void Rafaga (char *data) //Data[6]
     I2C_Stop();
     
 }
+
+void Timer_Init(void)
+{
+        INTCONbits.GIE = 0;
+    T0CONbits.T0CS = 0;
+    T0CONbits.PSA = 0;
+    T0CONbits.T0PS = 0b101; //Preescaler = 64
+    T0CONbits.T08BIT = 0;   //16 bits
+    TMR0L = 63661;
+    TMR0H = (63661) >> 8;
+    T0CONbits.TMR0ON = 1;
+
+
+    INTCONbits.TMR0IF = 0;
+    INTCONbits.TMR0IE = 1;
+    INTCONbits.PEIE = 1;
+    INTCONbits.GIE = 1;
+    ei();
+}
